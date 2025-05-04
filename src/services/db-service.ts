@@ -26,10 +26,10 @@ export const getDoctorByEmail = async (
 
 export const addPatient = async (
   patientDetails: Patient,
-  db: PGliteWithLive  
+  db: PGliteWithLive
 ): Promise<Results<unknown>> => {
   const result = await db.query(
-    `INSERT INTO patients (doctor_id, name,age, gender,contact, email) VALUES ($1, $2, $3, $4, $5, $6)`,
+    `INSERT INTO patients (doctor_id, name,age, gender,contact, email, remark) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
     [
       patientDetails.doctor_id,
       patientDetails.name,
@@ -37,8 +37,16 @@ export const addPatient = async (
       patientDetails.gender,
       patientDetails.contact,
       patientDetails.email,
+      patientDetails.remark,
     ]
   );
 
   return result;
+};
+
+export const queryPatientsData = async (
+  query: string,
+  db: PGliteWithLive
+): Promise<Results<unknown>> => {
+  return db.query(query);
 };
