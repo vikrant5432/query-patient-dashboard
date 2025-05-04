@@ -13,9 +13,8 @@ export function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header with profile and logout */}
-      <header className="flex justify-between items-center p-4 bg-white shadow-md">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-200">
+      <header className="flex justify-between items-center p-4 bg-gray-100 shadow-lg border-b border-blue-100 backdrop-blur-md">
         <h1 className="text-xl font-bold text-blue-600">Patient Management</h1>
         <div className="flex items-center gap-4">
           <span className="font-medium text-gray-700">
@@ -36,15 +35,15 @@ export function Dashboard() {
       {/* Main Content: 30:70 on desktop, stacked on mobile */}
       <main className="flex flex-col md:flex-row h-[calc(100vh-64px)]">
         {/* Registration Form (30% width on desktop, full width on mobile) */}
-        <section className="w-full md:w-3/10 bg-white p-6 border-b md:border-r md:border-b-0 border-gray-200 overflow-auto">
+        <section className="-full md:w-3/10 bg-white/80 p-6 rounded-xl shadow-2xl border-b md:border-r md:border-b-0 border-gray-200 overflow-auto">
           <h2 className="text-lg font-bold mb-4">Register Patient</h2>
           <PatientRegistrationForm doctorId={userDetails?.id} />
         </section>
 
         {/* Query Section (70% width on desktop, full width on mobile) */}
-        <section className="w-full md:w-7/10 bg-white p-6 overflow-auto">
+        <section className="w-full md:w-7/10 p-6 overflow-auto">
           <h2 className="text-lg font-bold mb-4">Query Patients</h2>
-          <PatientQuerySection />
+          <PatientQuerySection doctorId={userDetails?.id} />
         </section>
       </main>
     </div>
