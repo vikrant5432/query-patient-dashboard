@@ -1,13 +1,16 @@
 import { PGlite } from "@electric-sql/pglite";
-import { live } from "@electric-sql/pglite/live";
+import { vector } from "@electric-sql/pglite/vector";
 import { worker } from "@electric-sql/pglite/worker";
 
 // Part 4: Support usage in multiple browser tabs simultaneously.
 
 worker({
-  async init() {
-    return new PGlite("idb://medblock-db", {
-      extensions: { live },
+  async init(options) {
+    return new PGlite({
+      dataDir: options.dataDir,
+      extensions: {
+        vector,
+      },
     });
   },
 });

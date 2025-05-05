@@ -1,5 +1,5 @@
-import { usePGlite, useLiveQuery } from "@electric-sql/pglite-react";
-import { useState } from "react";
+import { usePGlite } from "@electric-sql/pglite-react";
+import { useEffect, useState } from "react";
 import { queryPatientsData } from "../../services/db-service";
 import { Patient } from "../../database/interface";
 
@@ -12,12 +12,34 @@ export function PatientQuerySection({ doctorId }: { doctorId: number }) {
   const [customPage, setCustomPage] = useState(0);
   const [patientsPage, setPatientsPage] = useState(0);
   const [rowsPerPage] = useState(3);
+  const [patients, setPatients] = useState<Patient[]>([]);
 
-  // Use live query to automatically update when data changes
-  const patients = useLiveQuery<Patient[]>(
-    "SELECT * FROM patients WHERE doctor_id = $1",
-    [doctorId]
-  );
+  useEffect(() => {
+    let subscription: { unsubscribe: () => Promise<void> } | undefined;
+
+    const setupLiveQuery = async () => {
+      try {
+        subscription = await db.live.incrementalQuery<Patient>(
+          "SELECT * FROM patients WHERE doctor_id = $1",
+          [doctorId],
+          "id",
+          (result) => {
+            setPatients(result.rows);
+          }
+        );
+      } catch (error) {
+        console.error("Error setting up live query:", error);
+      }
+    };
+
+    setupLiveQuery();
+
+    return () => {
+      if (subscription) {
+        subscription.unsubscribe().catch(console.error);
+      }
+    };
+  }, [doctorId, db]);
 
   const executeCustomQuery = async (sqlQuery: string) => {
     setIsLoading(true);
@@ -28,7 +50,7 @@ export function PatientQuerySection({ doctorId }: { doctorId: number }) {
       const result = await queryPatientsData(sqlQuery, db);
       console.log("Custom query result:", result.rows);
       setCustomResults(result.rows);
-      setCustomPage(0); // Reset to first page when new query is executed
+      setCustomPage(0);
     } catch (error) {
       console.error("Error executing custom query:", error);
       setError(
@@ -41,7 +63,7 @@ export function PatientQuerySection({ doctorId }: { doctorId: number }) {
   };
 
   const paginatedPatients =
-    patients?.rows.slice(
+    patients?.slice(
       patientsPage * rowsPerPage,
       (patientsPage + 1) * rowsPerPage
     ) || [];
@@ -51,9 +73,7 @@ export function PatientQuerySection({ doctorId }: { doctorId: number }) {
     (customPage + 1) * rowsPerPage
   );
 
-  const totalPatientPages = Math.ceil(
-    (patients?.rows.length || 0) / rowsPerPage
-  );
+  const totalPatientPages = Math.ceil((patients?.length || 0) / rowsPerPage);
   const totalCustomPages = Math.ceil(customResults.length / rowsPerPage);
 
   return (
@@ -143,7 +163,7 @@ export function PatientQuerySection({ doctorId }: { doctorId: number }) {
             )}
           </tbody>
         </table>
-        {patients?.rows && patients.rows.length > rowsPerPage && (
+        {patients && patients.length > rowsPerPage && (
           <div className="flex items-center justify-between bg-gray-50 p-2 rounded">
             <button
               onClick={() => setPatientsPage((p) => Math.max(0, p - 1))}
@@ -198,7 +218,6 @@ export function PatientQuerySection({ doctorId }: { doctorId: number }) {
             </tbody>
           </table>
 
-          {/* Pagination Controls */}
           {customResults.length > 0 && (
             <div className="flex items-center justify-between mt-4 bg-gray-50 p-2 rounded">
               <div className="flex items-center space-x-2">
