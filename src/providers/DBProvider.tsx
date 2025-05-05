@@ -3,7 +3,7 @@ import { PGliteProvider } from "@electric-sql/pglite-react";
 import { live } from "@electric-sql/pglite/live";
 
 // Part 3: Persist patient data across page refreshes.
-const db = await PGlite.create({
+const db = await PGlite.create("idb://medblock-db", {
   extensions: { live },
 });
 
