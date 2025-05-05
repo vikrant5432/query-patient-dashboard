@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 // Register new patients
 const initialPatientData: PatientRegisterForm = {
   name: "",
-  age: 0,
+  age: "" as unknown as number,
   gender: "",
   contact: "",
   email: "",
@@ -25,15 +25,19 @@ export function PatientRegistrationForm({ doctorId }: { doctorId: number }) {
     >
   ) => {
     const { name, value } = e.target;
-    setPatientData((prev) => ({ ...prev, [name]: value }));
+    setPatientData((prev) => ({
+      ...prev,
+      [name]: name === "age" ? value.replace(/^0+/, "") : value,
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
+      const convertedAge = Number(patientData.age) || 0;
       const data = await addPatient(
-        { ...patientData, doctor_id: doctorId },
+        { ...patientData, doctor_id: doctorId, age: convertedAge },
         db
       );
       // Reset form after successful submission
@@ -111,9 +115,11 @@ export function PatientRegistrationForm({ doctorId }: { doctorId: number }) {
           id="contact"
           name="contact"
           type="tel"
+          pattern="[0-9]*"
           value={patientData.contact}
           onChange={handleChange}
           placeholder="Contact Number"
+          inputMode="numeric"
           className="border rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
           required
         />
