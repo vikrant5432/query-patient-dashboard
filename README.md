@@ -9,7 +9,7 @@ A modern in-browser patient management dashboard built with React, PGlite (brows
 1. **Clone the repository**
    ```sh
    git clone 
-   cd 
+   cd query-patient-dashboard
    ```
 
 2. **Install dependencies**
