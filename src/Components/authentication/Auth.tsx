@@ -123,7 +123,7 @@ export default function Auth() {
     <div className="flex items-center justify-center min-h-screen">
       <div className="absolute inset-0 -z-10">
         <img
-          src="../src/assets/images/bg-login.jpg"
+          src="/images/bg-login.jpg"
           alt="Hospital background"
           className="w-full h-full object-cover blur-sm"
         />
